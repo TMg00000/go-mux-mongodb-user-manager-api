@@ -7,14 +7,55 @@ import (
 )
 
 type User struct {
-	Id           bson.ObjectID `bson:"_id,omitempty"`
-	Name         string
-	NewName      string
-	Email        string
-	NewEmail     string
-	Password     string
-	NewPassword  string
-	PasswordHash string
+	Id              bson.ObjectID `bson:"_id,omitempty"`
+	Name            string
+	NewName         string
+	Email           string
+	NewEmail        string
+	Password        string
+	NewPassword     string
+	ConfirmPassword string
+	PasswordHash    string
+}
+
+func NewDeleteUserByEmail(email, password, confirmPassword string) *User {
+	if len(password) < 8 || len(confirmPassword) < 8 {
+		return nil
+	}
+
+	if !strings.Contains(email, "@") {
+		return nil
+	}
+
+	if email == "" || password == "" || confirmPassword == "" {
+		return nil
+	}
+
+	return &User{
+		Email:           email,
+		Password:        password,
+		ConfirmPassword: confirmPassword,
+	}
+}
+
+func NewUpdatePassword(email, password, newPassword string) *User {
+	if len(password) < 8 || len(newPassword) < 8 {
+		return nil
+	}
+
+	if !strings.Contains(email, "@") {
+		return nil
+	}
+
+	if email == "" || password == "" || newPassword == "" {
+		return nil
+	}
+
+	return &User{
+		Email:       email,
+		Password:    password,
+		NewPassword: newPassword,
+	}
 }
 
 func NewUpdateEmail(email, password, newEmail string) *User {

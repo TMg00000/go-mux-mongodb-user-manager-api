@@ -112,3 +112,31 @@ func (repo *MongoRepository) UpdateEmail(newEmail, email string) error {
 
 	return nil
 }
+
+func (repo *MongoRepository) UpdatePassword(newPassword, email string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"email": email}
+	doc := bson.M{"$set": bson.M{"password": newPassword}}
+
+	_, err := repo.Collection.UpdateOne(ctx, filter, doc)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *MongoRepository) DeleteUserByEmail(email string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"email": email}
+	_, err := repo.Collection.DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

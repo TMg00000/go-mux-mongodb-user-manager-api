@@ -29,6 +29,18 @@ type UserUpdateEmailInput struct {
 	NewEmail string `json:"new_email" validate:"required,email"`
 }
 
+type UserUpdatePasswordInput struct {
+	Email       string `json:"email" validate:"required,email"`
+	Password    string `json:"password" validate:"required,min=8"`
+	NewPassword string `json:"new_password" validate:"required,min=8"`
+}
+
+type UserDeleteUserByEmailInput struct {
+	Email           string `json:"email" validate:"required,email"`
+	Password        string `json:"password" validate:"required,min=8"`
+	ConfirmPassword string `json:"confirm_password" validate:"required,min=8"`
+}
+
 func Validate(u interface{}) error {
 	validate := validator.New()
 

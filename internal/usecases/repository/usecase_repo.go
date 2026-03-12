@@ -8,6 +8,8 @@ type WriterOnlyRepositoryUseCases interface {
 	ExecCreate(users_manager.UserCreateInput) (users_manager.UserCreateResponse, error)
 	ExecUpdateName(users_manager.UserUpdateNameInput) (map[string]interface{}, error)
 	ExecUpdateEmail(users_manager.UserUpdateEmailInput) (map[string]interface{}, error)
+	ExecUpdatePassword(users_manager.UserUpdatePasswordInput) (map[string]interface{}, error)
+	ExecDeleteUserByEmail(users_manager.UserDeleteUserByEmailInput) (users_manager.UserDeleteUserByEmailResponse, error)
 }
 
 type ReadOnlyRepositoryUseCases interface {

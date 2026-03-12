@@ -30,3 +30,16 @@ type UserUpdateEmailResponse struct {
 	password string
 	NewEmail string
 }
+
+type UserUpdatePasswordResponse struct {
+	Id          bson.ObjectID `bson:"_id,omitempty"`
+	Email       string
+	password    string
+	NewPassword string
+}
+
+type UserDeleteUserByEmailResponse struct {
+	Id    bson.ObjectID `bson:"_id,omitempty"`
+	Name  string
+	Email string
+}

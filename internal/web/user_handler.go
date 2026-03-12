@@ -82,7 +82,7 @@ func (repo *UserUseCasesRepository) LoginUser(w http.ResponseWriter, r *http.Req
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"login_success": response,
 	})
@@ -135,4 +135,56 @@ func (repo *UserUseCasesRepository) UpdateEmail(w http.ResponseWriter, r *http.R
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
+}
+
+func (repo *UserUseCasesRepository) UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	var inputDto users_manager.UserUpdatePasswordInput
+
+	if err := json.NewDecoder(r.Body).Decode(&inputDto); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := users_manager.Validate(inputDto); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	response, err := repo.usecase.ExecUpdatePassword(inputDto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+func (repo *UserUseCasesRepository) DeleteUserByEmail(w http.ResponseWriter, r *http.Request) {
+	var inputDto users_manager.UserDeleteUserByEmailInput
+
+	if err := json.NewDecoder(r.Body).Decode(&inputDto); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := users_manager.Validate(inputDto); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	response, err := repo.usecase.ExecDeleteUserByEmail(inputDto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"delete_success": map[string]interface{}{
+			"user": response,
+		},
+	})
 }

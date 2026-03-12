@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"go-mux-mongodb-user-manager-api/internal/infra/database/mongodb"
 	"go-mux-mongodb-user-manager-api/internal/infra/security"
 	"go-mux-mongodb-user-manager-api/internal/usecases/users_manager"
@@ -26,6 +25,8 @@ func main() {
 	getLoginUseCase := users_manager.NewLoginUserServices(mongorepo, security.NewHashingService())
 	updateNameUseCase := users_manager.NewUpdateNameServices(mongorepo, security.NewHashingService())
 	updateEmailUseCase := users_manager.NewUpdateEmailServices(mongorepo, security.NewHashingService())
+	updatePasswordUseCase := users_manager.NewUpdatePasswordServices(mongorepo, security.NewHashingService())
+	deleteUseCase := users_manager.NewDeleteUserByEmailServices(mongorepo, security.NewHashingService())
 
 	type handler struct {
 		*users_manager.CreateUserServices
@@ -33,6 +34,8 @@ func main() {
 		*users_manager.LoginUserServices
 		*users_manager.UpdateNameServices
 		*users_manager.UpdateEmailServices
+		*users_manager.UpdatePasswordServices
+		*users_manager.DeleteUserByEmailServices
 	}
 
 	hub := handler{
@@ -41,15 +44,14 @@ func main() {
 		getLoginUseCase,
 		updateNameUseCase,
 		updateEmailUseCase,
+		updatePasswordUseCase,
+		deleteUseCase,
 	}
 
 	usecases := web.NewUserUseCasesRepository(hub)
 
 	err = web.Routers(usecases)
 	returnFatalError(err)
-
-	fmt.Println("server running on port " + configs.Env.Port)
-	fmt.Println("server running on address http://localhost:" + configs.Env.Port)
 }
 
 func initDatabase() *mongo.Collection {

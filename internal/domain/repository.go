@@ -6,6 +6,8 @@ type MongoRepository interface {
 	GetByEmail(email string) (*User, error)
 	UpdateName(name string, email string) error
 	UpdateEmail(newEmail string, email string) error
+	UpdatePassword(newPassword string, email string) error
+	DeleteUserByEmail(email string) error
 }
 
 type HashingRepository interface {
