@@ -3,9 +3,10 @@ package domain
 type MongoRepository interface {
 	Create(u *User) error
 	GetAll() ([]User, error)
+	GetByEmail(email string) (*User, error)
 }
 
-type HashingService interface {
+type HashingRepository interface {
 	HashPassword(password string) (string, error)
-	CheckPasswordHash(password, hash string) bool
+	ComparePassword(password, hash string) error
 }

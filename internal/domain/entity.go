@@ -14,6 +14,21 @@ type User struct {
 	PasswordHash string
 }
 
+func NewLoginUser(email, password string) *User {
+	if (email == "" && !strings.Contains(email, "@")) || password == "" {
+		return nil
+	}
+
+	if len(password) < 8 {
+		return nil
+	}
+
+	return &User{
+		Email:    email,
+		Password: password,
+	}
+}
+
 func NewUser(name, email, password string) *User {
 	if name == "" || email == "" || password == "" {
 		return nil

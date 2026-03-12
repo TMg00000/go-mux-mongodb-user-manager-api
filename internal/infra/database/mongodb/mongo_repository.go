@@ -66,3 +66,19 @@ func (repo *MongoRepository) GetAll() ([]domain.User, error) {
 
 	return result, nil
 }
+
+func (repo *MongoRepository) GetByEmail(email string) (*domain.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"email": email}
+
+	var model *domain.User
+
+	err := repo.Collection.FindOne(ctx, filter).Decode(&model)
+	if err != nil {
+		return nil, err
+	}
+
+	return model, nil
+}

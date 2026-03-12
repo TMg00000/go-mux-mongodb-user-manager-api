@@ -12,7 +12,12 @@ type UserCreateInput struct {
 	Password string        `json:"password" validate:"required,min=8"`
 }
 
-func UserCreateInputValidate(u UserCreateInput) error {
+type UserLoginInput struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8"`
+}
+
+func Validate(u interface{}) error {
 	validate := validator.New()
 
 	if err := validate.Struct(u); err != nil {

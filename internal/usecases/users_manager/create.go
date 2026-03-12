@@ -4,32 +4,32 @@ import (
 	"go-mux-mongodb-user-manager-api/internal/domain"
 )
 
-type UseCaseRepository struct {
-	Collection     domain.MongoRepository
-	HashingService domain.HashingService
+type CreateUserServices struct {
+	Collection        domain.MongoRepository
+	HashingRepository domain.HashingRepository
 }
 
-func NewUseCaseRepository(collection domain.MongoRepository, hashingService domain.HashingService) *UseCaseRepository {
-	return &UseCaseRepository{
-		Collection:     collection,
-		HashingService: hashingService,
+func NewCreateUserServices(collection domain.MongoRepository, hashingRepository domain.HashingRepository) *CreateUserServices {
+	return &CreateUserServices{
+		Collection:        collection,
+		HashingRepository: hashingRepository,
 	}
 }
 
-func (r *UseCaseRepository) ExecCreate(model *domain.User) (UserCreateOutput, error) {
+func (r *CreateUserServices) ExecCreate(model *domain.User) (UserCreateResponse, error) {
 
-	newHash, err := r.HashingService.HashPassword(model.Password)
+	newHash, err := r.HashingRepository.HashPassword(model.Password)
 	if err != nil {
-		return UserCreateOutput{}, err
+		return UserCreateResponse{}, err
 	}
 	model.PasswordHash = newHash
 
 	err = r.Collection.Create(model)
 	if err != nil {
-		return UserCreateOutput{}, err
+		return UserCreateResponse{}, err
 	}
 
-	response := UserCreateOutput{
+	response := UserCreateResponse{
 		Name:  model.Name,
 		Email: model.Email,
 	}

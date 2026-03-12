@@ -8,19 +8,22 @@ import (
 	"net/http"
 )
 
-type UserHandlerRepository struct {
-	usecaseWriterOnly repository.WriterOnlyRepositoryUseCases
-	usecaseReadOnly   repository.ReadOnlyRepositoryUseCases
+type UserUseCases interface {
+	repository.WriterOnlyRepositoryUseCases
+	repository.ReadOnlyRepositoryUseCases
 }
 
-func NewUserHandlerRepository(writerOnly repository.WriterOnlyRepositoryUseCases, readOnly repository.ReadOnlyRepositoryUseCases) *UserHandlerRepository {
-	return &UserHandlerRepository{
-		usecaseWriterOnly: writerOnly,
-		usecaseReadOnly:   readOnly,
+type UserUseCasesRepository struct {
+	usecase UserUseCases
+}
+
+func NewUserUseCasesRepository(uc UserUseCases) *UserUseCasesRepository {
+	return &UserUseCasesRepository{
+		usecase: uc,
 	}
 }
 
-func (repo *UserHandlerRepository) CreateNewUser(w http.ResponseWriter, r *http.Request) {
+func (repo *UserUseCasesRepository) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 	var inputDto users_manager.UserCreateInput
 
 	if err := json.NewDecoder(r.Body).Decode(&inputDto); err != nil {
@@ -28,7 +31,7 @@ func (repo *UserHandlerRepository) CreateNewUser(w http.ResponseWriter, r *http.
 		return
 	}
 
-	if err := users_manager.UserCreateInputValidate(inputDto); err != nil {
+	if err := users_manager.Validate(inputDto); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -39,7 +42,7 @@ func (repo *UserHandlerRepository) CreateNewUser(w http.ResponseWriter, r *http.
 		inputDto.Password,
 	)
 
-	response, err := repo.usecaseWriterOnly.ExecCreate(model)
+	response, err := repo.usecase.ExecCreate(model)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -52,9 +55,9 @@ func (repo *UserHandlerRepository) CreateNewUser(w http.ResponseWriter, r *http.
 	})
 }
 
-func (repo *UserHandlerRepository) GetAllUsers(w http.ResponseWriter, r *http.Request) {
+func (repo *UserUseCasesRepository) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 
-	response, err := repo.usecaseReadOnly.ExecGetAll()
+	response, err := repo.usecase.ExecGetAll()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -64,4 +67,36 @@ func (repo *UserHandlerRepository) GetAllUsers(w http.ResponseWriter, r *http.Re
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"users": response,
 	})
+}
+
+func (repo *UserUseCasesRepository) LoginUser(w http.ResponseWriter, r *http.Request) {
+	var inputDto users_manager.UserLoginInput
+
+	if err := json.NewDecoder(r.Body).Decode(&inputDto); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := users_manager.Validate(inputDto); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	model := domain.NewLoginUser(
+		inputDto.Email,
+		inputDto.Password,
+	)
+
+	response, err := repo.usecase.ExecLogin(model.Email, model.Password, model)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"login_success": response,
+	})
+
 }

@@ -2,14 +2,18 @@ package users_manager
 
 import "go.mongodb.org/mongo-driver/v2/bson"
 
-type UserCreateOutput struct {
+type UserCreateResponse struct {
 	Name  string `bson:"name" `
 	Email string `bson:"email" `
 }
 
-type UserGetAllOutput struct {
-	Id           bson.ObjectID `bson:"_id,omitempty"`
-	Name         string
-	Email        string
-	PasswordHash string
+type UserGetAllResponse struct {
+	Id    bson.ObjectID `bson:"_id,omitempty"`
+	Name  string
+	Email string
+}
+
+type UserGetByEmailResponse struct {
+	Id   bson.ObjectID `bson:"_id,omitempty"`
+	Name string
 }

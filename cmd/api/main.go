@@ -21,15 +21,25 @@ func main() {
 	col := initDatabase()
 	mongorepo := mongodb.NewMongoRepository(col)
 
-	createUseCase := users_manager.NewUseCaseRepository(mongorepo, security.NewHashingService())
-	getUseCase := users_manager.NewUserGetAllRepository(mongorepo)
+	createUseCase := users_manager.NewCreateUserServices(mongorepo, security.NewHashingService())
+	getAllUseCase := users_manager.NewGetAllServices(mongorepo)
+	getLoginUseCase := users_manager.NewLoginUserServices(mongorepo, security.NewHashingService())
 
-	usecase := web.NewUserHandlerRepository(
+	type handler struct {
+		*users_manager.CreateUserServices
+		*users_manager.GetAllServices
+		*users_manager.LoginUserServices
+	}
+
+	hub := handler{
 		createUseCase,
-		getUseCase,
-	)
+		getAllUseCase,
+		getLoginUseCase,
+	}
 
-	err = web.Routers(usecase)
+	usecases := web.NewUserUseCasesRepository(hub)
+
+	err = web.Routers(usecases)
 	returnFatalError(err)
 
 	fmt.Println("server running on port " + configs.Env.Port)
