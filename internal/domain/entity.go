@@ -10,8 +10,32 @@ type User struct {
 	Id           bson.ObjectID `bson:"_id,omitempty"`
 	Name         string
 	Email        string
-	Password     string `json:"-"`
+	Password     string
 	PasswordHash string
+}
+
+func NewUpdateName(email, password, newName string) *User {
+	if email == "" || password == "" || newName == "" {
+		return nil
+	}
+
+	if len(newName) < 3 || len(newName) > 50 {
+		return nil
+	}
+
+	if len(password) < 8 {
+		return nil
+	}
+
+	if !strings.Contains(email, "@") {
+		return nil
+	}
+
+	return &User{
+		Email:    email,
+		Password: password,
+		Name:     newName,
+	}
 }
 
 func NewLoginUser(email, password string) *User {

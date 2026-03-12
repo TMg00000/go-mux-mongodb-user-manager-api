@@ -24,17 +24,20 @@ func main() {
 	createUseCase := users_manager.NewCreateUserServices(mongorepo, security.NewHashingService())
 	getAllUseCase := users_manager.NewGetAllServices(mongorepo)
 	getLoginUseCase := users_manager.NewLoginUserServices(mongorepo, security.NewHashingService())
+	updateNameUseCase := users_manager.NewUpdateNameServices(mongorepo, security.NewHashingService())
 
 	type handler struct {
 		*users_manager.CreateUserServices
 		*users_manager.GetAllServices
 		*users_manager.LoginUserServices
+		*users_manager.UpdateNameServices
 	}
 
 	hub := handler{
 		createUseCase,
 		getAllUseCase,
 		getLoginUseCase,
+		updateNameUseCase,
 	}
 
 	usecases := web.NewUserUseCasesRepository(hub)

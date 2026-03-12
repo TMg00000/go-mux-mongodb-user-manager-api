@@ -29,14 +29,14 @@ func IndexUnique(col *mongo.Collection) error {
 	return err
 }
 
-func (repo *MongoRepository) Create(u *domain.User) error {
+func (repo *MongoRepository) Create(model *domain.User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	doc := bson.M{
-		"name":     u.Name,
-		"email":    u.Email,
-		"password": u.PasswordHash,
+		"name":     model.Name,
+		"email":    model.Email,
+		"password": model.PasswordHash,
 	}
 
 	_, err := repo.Collection.InsertOne(ctx, doc)
@@ -76,6 +76,23 @@ func (repo *MongoRepository) GetByEmail(email string) (*domain.User, error) {
 	var model *domain.User
 
 	err := repo.Collection.FindOne(ctx, filter).Decode(&model)
+	if err != nil {
+		return nil, err
+	}
+
+	return model, nil
+}
+
+func (repo *MongoRepository) UpdateName(name, email string) (*domain.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"email": email}
+	doc := bson.M{"$set": bson.M{"name": name}}
+
+	var model *domain.User
+
+	err := repo.Collection.FindOneAndUpdate(ctx, filter, doc).Decode(&model)
 	if err != nil {
 		return nil, err
 	}

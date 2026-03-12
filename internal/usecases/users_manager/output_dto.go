@@ -17,3 +17,10 @@ type UserGetByEmailResponse struct {
 	Id   bson.ObjectID `bson:"_id,omitempty"`
 	Name string
 }
+
+type UserUpdateNameResponse struct {
+	Id       bson.ObjectID `bson:"_id,omitempty"`
+	Email    string
+	password string
+	NewName  string
+}

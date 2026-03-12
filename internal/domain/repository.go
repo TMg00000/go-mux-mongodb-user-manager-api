@@ -1,9 +1,10 @@
 package domain
 
 type MongoRepository interface {
-	Create(u *User) error
+	Create(*User) error
 	GetAll() ([]User, error)
 	GetByEmail(email string) (*User, error)
+	UpdateName(name string, email string) (model *User, err error)
 }
 
 type HashingRepository interface {

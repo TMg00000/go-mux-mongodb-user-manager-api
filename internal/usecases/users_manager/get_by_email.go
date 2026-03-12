@@ -16,14 +16,18 @@ func NewLoginUserServices(collection domain.MongoRepository, hashingServices dom
 	}
 }
 
-func (r *LoginUserServices) ExecLogin(email, password string, model *domain.User) (UserGetByEmailResponse, error) {
+func (r *LoginUserServices) ExecLogin(inputDto UserLoginInput) (UserGetByEmailResponse, error) {
+	model := domain.NewLoginUser(
+		inputDto.Email,
+		inputDto.Password,
+	)
 
-	result, err := r.Collection.GetByEmail(email)
+	result, err := r.Collection.GetByEmail(model.Email)
 	if err != nil {
 		return UserGetByEmailResponse{}, err
 	}
 
-	err = r.HashingServices.ComparePassword(result.Password, password)
+	err = r.HashingServices.ComparePassword(result.Password, model.Password)
 	if err != nil {
 		return UserGetByEmailResponse{}, err
 	}

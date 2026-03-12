@@ -17,6 +17,12 @@ type UserLoginInput struct {
 	Password string `json:"password" validate:"required,min=8"`
 }
 
+type UserUpdateNameInput struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8"`
+	NewName  string `json:"new_name" validate:"required,min=3,max=50"`
+}
+
 func Validate(u interface{}) error {
 	validate := validator.New()
 

@@ -16,7 +16,12 @@ func NewCreateUserServices(collection domain.MongoRepository, hashingRepository 
 	}
 }
 
-func (r *CreateUserServices) ExecCreate(model *domain.User) (UserCreateResponse, error) {
+func (r *CreateUserServices) ExecCreate(inputDto UserCreateInput) (UserCreateResponse, error) {
+	model := domain.NewUser(
+		inputDto.Name,
+		inputDto.Email,
+		inputDto.Password,
+	)
 
 	newHash, err := r.HashingRepository.HashPassword(model.Password)
 	if err != nil {

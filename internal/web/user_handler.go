@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"go-mux-mongodb-user-manager-api/internal/domain"
 	"go-mux-mongodb-user-manager-api/internal/usecases/repository"
 	"go-mux-mongodb-user-manager-api/internal/usecases/users_manager"
 	"net/http"
@@ -36,13 +35,7 @@ func (repo *UserUseCasesRepository) CreateNewUser(w http.ResponseWriter, r *http
 		return
 	}
 
-	model := domain.NewUser(
-		inputDto.Name,
-		inputDto.Email,
-		inputDto.Password,
-	)
-
-	response, err := repo.usecase.ExecCreate(model)
+	response, err := repo.usecase.ExecCreate(inputDto)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -82,12 +75,7 @@ func (repo *UserUseCasesRepository) LoginUser(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	model := domain.NewLoginUser(
-		inputDto.Email,
-		inputDto.Password,
-	)
-
-	response, err := repo.usecase.ExecLogin(model.Email, model.Password, model)
+	response, err := repo.usecase.ExecLogin(inputDto)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -99,4 +87,28 @@ func (repo *UserUseCasesRepository) LoginUser(w http.ResponseWriter, r *http.Req
 		"login_success": response,
 	})
 
+}
+
+func (repo *UserUseCasesRepository) UpdateName(w http.ResponseWriter, r *http.Request) {
+	var inputDto users_manager.UserUpdateNameInput
+
+	if err := json.NewDecoder(r.Body).Decode(&inputDto); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := users_manager.Validate(inputDto); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	response, err := repo.usecase.ExecUpdateName(inputDto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }
